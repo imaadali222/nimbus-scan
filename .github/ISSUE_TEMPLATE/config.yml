@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Setup / Usage Docs
+    url: https://github.com/macminitm/cloud-security-posture-management#quick-start-5-minutes
+    about: Start with the README quick-start and troubleshooting sections.

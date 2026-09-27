@@ -1,0 +1,12 @@
+Cloud Security Posture Management (CSPM) Platform
+Copyright 2026 Contributors
+
+This repository is an independent CSPM web application and control-plane implementation.
+It integrates with open-source scanner engines, including Prowler and Kubescape, at runtime.
+
+Attribution:
+- Prowler (https://github.com/prowler-cloud/prowler), Apache License 2.0
+- Kubescape (https://github.com/kubescape/kubescape) -- see upstream project for current license and notices
+
+This repository does not claim affiliation with or endorsement by the Prowler project.
+"Prowler" is referenced to describe scanner interoperability/integration.

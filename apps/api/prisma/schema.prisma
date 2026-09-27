@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum Provider {
+  AWS
+  AZURE
+  GCP
+  KUBERNETES
+  M365
+  GITHUB
+  MONGODBATLAS
+  ORACLECLOUD
+  ALIBABACLOUD
+  CLOUDFLARE
+  OPENSTACK
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum Severity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+model Tenant {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  memberships    Membership[]
+  integrations   Integration[]
+  scanJobs       ScanJob[]
+  findings       Finding[]
+  assets         Asset[]
+  auditLogs      AuditLog[]
+  schedulePolicy SchedulePolicy[]
+  alertEndpoints AlertEndpoint[]
+  scanProfiles   TenantScanProfile[]
+  parentLinks    TenantHierarchy[] @relation("ParentTenant")
+  childLinks     TenantHierarchy[] @relation("ChildTenant")
+}
+
+model TenantHierarchy {
+  id             String   @id @default(cuid())
+  parentTenantId String
+  childTenantId  String
+  createdAt      DateTime @default(now())
+
+  parentTenant Tenant @relation("ParentTenant", fields: [parentTenantId], references: [id], onDelete: Cascade)
+  childTenant  Tenant @relation("ChildTenant", fields: [childTenantId], references: [id], onDelete: Cascade)
+
+  @@unique([parentTenantId, childTenantId])
+  @@unique([childTenantId])
+  @@index([parentTenantId])
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  email              String               @unique
+  passwordHash       String
+  isSuperAdmin       Boolean              @default(false)
+  createdAt          DateTime             @default(now())
+  memberships        Membership[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@index([tenantId, role])
+}
+
+model Integration {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  provider    Provider
+  configJson  String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  scanJobs ScanJob[]
+  findings Finding[]
+
+  @@index([tenantId, provider])
+}
+
+model ScanJob {
+  id                String     @id @default(cuid())
+  tenantId          String
+  integrationId     String
+  requestedByUserId String
+  status            ScanStatus @default(QUEUED)
+  framework         String?
+  provider          Provider
+  startedAt         DateTime?
+  completedAt       DateTime?
+  errorMessage      String?
+  metadataJson      String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  findings    Finding[]
+
+  @@index([status, createdAt])
+  @@index([tenantId, provider])
+}
+
+model Asset {
+  id            String    @id @default(cuid())
+  tenantId      String
+  provider      Provider
+  externalId    String
+  name          String
+  assetType     String
+  firstSeenAt   DateTime  @default(now())
+  lastSeenAt    DateTime  @default(now())
+  criticality   Int       @default(50)
+  metadataJson  String?
+  findings      Finding[]
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider, externalId])
+  @@index([tenantId, provider, assetType])
+}
+
+model Finding {
+  id             String   @id @default(cuid())
+  tenantId       String
+  integrationId  String
+  scanJobId      String
+  assetId        String?
+  provider       Provider
+  framework      String
+  severity       Severity
+  riskScore      Int      @default(0)
+  complianceTags String?
+  resourceId     String
+  title          String
+  description    String
+  category       String?
+  status         String   @default("OPEN")
+  externalId     String?
+  rawJson        String?
+  detectedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  scanJob     ScanJob     @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+  asset       Asset?      @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, severity])
+  @@index([tenantId, provider, framework])
+  @@index([tenantId, riskScore])
+  @@index([scanJobId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  ipAddress  String?
+  userAgent  String?
+  detailsJson String?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, action])
+}
+
+model SchedulePolicy {
+  id           String   @id @default(cuid())
+  tenantId     String
+  name         String
+  cron         String
+  provider     Provider?
+  framework    String?
+  isEnabled    Boolean  @default(true)
+  lastRunAt    DateTime?
+  nextRunAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, isEnabled])
+}
+
+model AlertEndpoint {
+  id           String   @id @default(cuid())
+  tenantId     String
+  name         String
+  endpointType String
+  target       String
+  secretRef    String?
+  isEnabled    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, endpointType])
+}
+
+model TenantScanProfile {
+  id         String    @id @default(cuid())
+  tenantId    String
+  provider    Provider
+  framework   String?
+  profileJson String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+}

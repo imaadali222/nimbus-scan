@@ -1,0 +1,19 @@
+[Unit]
+Description=CSPM Worker Service
+After=network.target docker.service cspm-api.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/cloud-security-posture-management
+Environment=NODE_ENV=production
+EnvironmentFile=/home/ubuntu/cloud-security-posture-management/.env
+ExecStart=/usr/bin/npm run start -w @cspm/worker
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

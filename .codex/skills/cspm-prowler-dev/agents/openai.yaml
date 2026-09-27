@@ -1,0 +1,4 @@
+interface:
+  display_name: "CSPM Prowler Dev"
+  short_description: "Prowler-backed CSPM repo workflow"
+  default_prompt: "Use this skill when debugging or extending the Prowler-backed integrations, scan runtime, provider catalog, or local dev-stack behavior in the cloud-security-posture-management repo."

@@ -1,0 +1,74 @@
+name: Bug report
+description: Report a bug or regression in the CSPM platform
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug.
+
+        Please do not include secrets, cloud credentials, or sensitive customer data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the bug and the observed behavior.
+      placeholder: The integrations page returns a 500 after...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: The page should render and show...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide a minimal set of steps.
+      placeholder: |
+        1. Start the dev stack with `npm run dev:up`
+        2. Go to /integrations
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Web UI
+        - API
+        - Worker / Scanner Runtime
+        - Integrations
+        - Findings / Dashboard
+        - Auth / RBAC
+        - Dev Setup / Tooling
+        - Docs
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit / branch (optional)
+      description: If known, include commit SHA or branch.
+      placeholder: e.g. 910834c or main
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / error output (sanitized)
+      description: Paste relevant logs or stack traces with secrets removed.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I removed secrets/credentials/customer-sensitive data from this issue
+          required: true
+        - label: I checked existing issues for duplicates
+          required: true

@@ -1,0 +1,41 @@
+{
+  "name": "cloud-security-posture-management",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CSPM monorepo scaffold",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev-stack.mjs up",
+    "dev:up": "node scripts/dev-stack.mjs up",
+    "dev:down": "node scripts/dev-stack.mjs down",
+    "dev:status": "node scripts/dev-stack.mjs status",
+    "dev:logs": "node scripts/dev-stack.mjs logs",
+    "dev:doctor": "node scripts/dev-stack.mjs doctor",
+    "clean:web": "node scripts/clean-web-cache.mjs",
+    "scanners:prewarm": "bash scripts/prewarm-scanners.sh",
+    "scanners:preflight": "bash scripts/preflight-scanners.sh",
+    "db:generate": "npm run prisma:generate -w @cspm/api",
+    "demo:seed": "npm run demo:seed -w @cspm/api",
+    "db:migrate:dev": "npm run prisma:migrate -w @cspm/api",
+    "db:migrate:deploy": "npm run prisma:deploy -w @cspm/api",
+    "health": "node scripts/healthcheck.mjs",
+    "dev:workspaces": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "e2e:install": "playwright install chromium --with-deps"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "playwright": "1.58.2"
+  }
+}

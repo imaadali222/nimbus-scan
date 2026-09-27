@@ -1,0 +1,18 @@
+[Unit]
+Description=CSPM Web Service
+After=network.target cspm-api.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/cloud-security-posture-management
+Environment=NODE_ENV=production
+EnvironmentFile=/home/ubuntu/cloud-security-posture-management/.env
+ExecStart=/usr/bin/npm run start -w @cspm/web
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

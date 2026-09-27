@@ -1,0 +1,67 @@
+name: Feature request
+description: Propose a new feature or enhancement
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion.
+
+        The most useful requests clearly describe the operator workflow/problem, not just the UI change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      placeholder: As an MSP operator, I need...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: Add a tenant-level policy editor for...
+    validations:
+      required: true
+  - type: dropdown
+    id: beneficiary
+    attributes:
+      label: Who benefits most?
+      options:
+        - MSP / MSSP operators
+        - Internal cloud security teams
+        - Platform / engineering teams
+        - Contributors / maintainers
+        - Mixed / other
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Integrations
+        - Scan Profiles
+        - Scanning / Worker Runtime
+        - Findings / Triage
+        - Compliance / Reporting
+        - MSP Multi-tenant Operations
+        - Auth / RBAC
+        - Docs / Onboarding
+        - Dev Experience / Tooling
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered (optional)
+      placeholder: We currently work around this by...
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria (optional)
+      description: Bullet list of what “done” looks like.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
